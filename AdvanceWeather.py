@@ -255,9 +255,6 @@ confirm_label.pack(pady=30)
 
 
 
-
-
-
 app.mainloop()
 
 
