@@ -12,13 +12,12 @@
 # uS2E37fEdh7A7G87 789 f4
 # hajfh uawehM uisadhniw
 
-# email pkgs
-import smtplib, requests, time
+
+import smtplib, requests
 import KEYS
 from google import genai
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-# GUI pkgs
 import tkinter as tk
 import ttkbootstrap as ttk
 
@@ -30,9 +29,12 @@ def weather_info(place):
 
     weather_call_url = f"https://api.openweathermap.org/data/2.5/weather?appid={api_key}&q={place}"
 
-    response = requests.get(weather_call_url).json()
-    # print(response)
-    print("Acquired weather information")
+    try:
+        response = requests.get(weather_call_url).json()
+        print("Acquired weather information")
+    except Exception:
+        confirmation_var.set("Error!!!")
+
     return response
 
 # weather info summarization (2nd operation)
@@ -42,7 +44,6 @@ def summarize_weather_info(place):
     client = genai.Client(api_key=api_key)
 
     weather_information = weather_info(place)
-    # print(weather_information)
 
     response = client.models.generate_content(
     model="gemini-2.0-flash",
@@ -55,7 +56,6 @@ def summarize_weather_info(place):
             """
     )
 
-    # print(re)
     return response.text
 
 # email sending section (3rd operation)
@@ -68,7 +68,12 @@ def email_section(username, password, client, place):
     server.starttls()
     server.login(user=username, password=password)
 
-    content = summarize_weather_info(place).split("\n")
+
+    content = summarize_weather_info(place)
+    if content == 404:
+        confirmation_var.set("Error!!!")
+
+    content = content.split("\n")
 
     # email formating (start)
     main_content = ""
@@ -77,18 +82,16 @@ def email_section(username, password, client, place):
         "<html><head></head><body><h2><strong>",
         "</strong></h2><p>",
         "</p><h3><strong>",
-        "</strong></h3><p>",
-        "</p></body></html>"
+        "</strong></h3><p>"
     ]
 
     for info in content:
         if info == "":
             continue
-        # print(template_list[count], "\n",info)
         main_content += template_list[count]    # adding html
         main_content += info                    # adding content
         count += 1
-    main_content += template_list[-1]
+    main_content += "</p></body></html>"
 
     # email formating (end)
 
@@ -106,6 +109,8 @@ def email_section(username, password, client, place):
 def mailing_start():
     global state
     state = True
+    client_entry.configure(state="disable")
+    place_entry.configure(state="disable")
 
     def run_task():
         username = KEYS.username        # username_var.get()
@@ -129,25 +134,21 @@ def reset():
     global state
     state = False
 
+    client_entry.configure(state="enable")
+    place_entry.configure(state="enable")
     confirmation_var.set("Weather mailing is cancelled")
-    username_var.set(value="")
-    password_var.set(value="")
     client_var.set(value="")
     place_var.set(value="")
 
+
+#------------------------------------------------------------------------------------------------------------------------------------------------
 # GUI start
 app = ttk.Window(themename="journal")
 app.title("Advance weather")
-app.iconbitmap(r"C:\Users\tiham\Personal Projects\Project2_AppDev\cloudy.ico")
 app.geometry("450x650")
 # style variable
 font = "Calibri"
 
-# after submition every entry field would go blank except buttons
-# but on reset the vars would go blank and entry would go normal
-
-username_var = tk.StringVar()
-password_var = tk.StringVar()
 client_var = tk.StringVar()
 place_var = tk.StringVar()
 interval_var = tk.IntVar()
@@ -161,42 +162,16 @@ label = ttk.Label(
 label.pack(padx=2, pady=5, ipadx=2, ipady=2)
 
 
-# widget for username, password, client, place
-frame_username = ttk.Frame(master=app)
-frame_password= ttk.Frame(master=app)
+# widget for client, place
 frame_client = ttk.Frame(master=app)
 frame_place = ttk.Frame(master=app)
 frame_interval = ttk.Frame(master=app)
 frame_buttons = ttk.Frame(master=app)
 
-# frame_username.pack(pady=4)
-# frame_password.pack(pady=4)
 frame_client.pack(pady=4)
 frame_place.pack(pady=4)
 frame_interval.pack(pady=10, ipady=10)
 frame_buttons.pack(pady=10, ipady=6)
-
-# username widget
-username_label = ttk.Label(
-    master=frame_username,
-    text="Your Email ",
-    font=font
-)
-username_entry = ttk.Entry(master=frame_username, font=font, textvariable=username_var)
-
-username_label.pack(side="left", ipadx=13)
-username_entry.pack(ipadx=10)
-
-# password widget
-password_label = ttk.Label(
-    master=frame_password,
-    text="Password",
-    font=font
-)
-password_entry = ttk.Entry(master=frame_password, font=font, textvariable=password_var)
-
-password_label.pack(side="left", ipadx=20)
-password_entry.pack(ipadx=10)
 
 # client widget
 client_label = ttk.Label(
