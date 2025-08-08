@@ -1,6 +1,6 @@
 # An application to send weather summary through email
-# pkg smtplib, gemini, tkinter, schedule, email
-# api open weather
+# pkg smtplib, tkinter, schedule, email
+# api open weather, gemini
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # use try except bfor production
