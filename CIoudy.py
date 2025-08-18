@@ -24,20 +24,21 @@ def scraped_info(url):
     link_matches = soup.find_all('a', class_=["title-link"])
 
     list1, list2 = [], []
+    limit = 20
 
     count = 0
     for match in title_matches:
-        if count == 10: break
+        if count == limit: break
         list1.append(match.text)
         count += 1
     count = 0
     for link in link_matches:
-        if count == 10: break
+        if count == limit: break
         list2.append(link.get('href'))
         count += 1
 
-    content = "<html><body>"
-    for i in range(10):
+    content = "<br/>"
+    for i in range(limit):
         content += f"""<a href="{list2[i]}" style="color: inherit; text-decoration: none;">{i + 1}.{list1[i]}</a> <br/>"""
     content += "</body></html>"
     return content
@@ -110,12 +111,12 @@ def email_section(username, password, client, place):
         main_content += template_list[count]    # adding html
         main_content += info                    # adding content
         count += 1
-    main_content += "</p></body></html>"
+    main_content += "</p><br/><h3>Recent News of Bangladesh</h3><br/>"
 
     # place to change email type
 
-    # url = "https://www.prothomalo.com/"
-    # main_content = scraped_info(url)
+    url = "https://www.prothomalo.com/"
+    main_content += scraped_info(url)
 
     # email formating (end)
 
@@ -166,7 +167,7 @@ def reset():
 
 
 # GUI start
-app = ttk.Window(themename="darkly") #journal
+app = ttk.Window(themename="minty") #journal, darkly, minty, united
 app.title("Cloudy")
 app.geometry("450x650")
 # style variable
@@ -250,6 +251,7 @@ reset_btn.pack(side="left", ipadx=15, padx=15)
 
 confirm_label = ttk.Label(master=app, textvariable=confirmation_var, font=f"{font} 20")
 confirm_label.pack(pady=30)
+
 
 app.mainloop()
 
