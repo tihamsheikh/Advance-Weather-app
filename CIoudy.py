@@ -1,7 +1,8 @@
 # An application to send weather summary through email
 # pkg smtplib, MIMEMultipart, MIMEText, gemini, tkinter, ttkbootstrap, schedule, email, requests, BeautifulSoup
 # api open weathe
-# key file KEYS
+# key file KEYS (get open_weather_key, genai_key, username, gmail_key before running) 
+
 
 import smtplib, requests
 from keys import KEYS
@@ -255,6 +256,7 @@ confirm_label.pack(pady=30)
 
 
 app.mainloop()
+
 
 
 
